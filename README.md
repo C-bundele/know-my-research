@@ -28,4 +28,5 @@ Animated gradient background: Blue → purple → black gradient for a modern lo
 
 Dark/light mode compatible: Chat bubbles and interface maintain readability in both modes.
 
-Try it out at know-my-research.streamlit.app
+Try it out at 
+know-my-research.streamlit.app

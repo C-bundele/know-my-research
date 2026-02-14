@@ -18,7 +18,7 @@ def load_rag():
 
 st.set_page_config(page_title="My Chatbot", page_icon="🤖")
 
-st.title("🤖 Simple Streamlit Chatbot")
+st.title("🤖 Talk to my Reeeeesearch! ")
 
 # Initialize session state for chat history
 if "messages" not in st.session_state:

@@ -1,46 +1,51 @@
-from src.data_loader import load_all_documents
-from src.embedding import EmbeddingPipeline
-from src.vectorstore import FaissVectorStore
+import streamlit as st
+from langchain_groq import ChatGroq
+import os
+from dotenv import load_dotenv
 from src.search import RAGSearch
 
 
+# Load environment variables
+load_dotenv()
 
-# Example usage
-if __name__ == "__main__":
-    
-    # docs = load_all_documents("data")
-    # store = FaissVectorStore("faiss_store")
-    # store.build_from_documents(docs)
-    # store.load()
-    # print(store.query("What is Image captioning?", top_k=3))
-    rag_search = RAGSearch()
-    query = input("Enter your query: ")
-    summary = rag_search.search_and_summarize(query, top_k=3)
-    print("Summary:", summary)
-    #print(docs)
+# Initialize GROQ client
+groq_api_key = os.getenv("GROQ_API_KEY")
+client = ChatGroq(groq_api_key=groq_api_key,model_name="llama-3.1-8b-instant",temperature=0.1,max_tokens=1024)
 
+@st.cache_resource
+def load_rag():
+    return RAGSearch()
 
-# # if __name__ == "__main__":
-    
-# #     docs = load_all_documents("data")
-# #     emb_pipe = EmbeddingPipeline()
-# #     chunks = emb_pipe.chunk_documents(docs)
-# #     embeddings = emb_pipe.embed_chunks(chunks)
-# #     print("[INFO] Example embedding:", embeddings[0] if len(embeddings) > 0 else None)
+st.set_page_config(page_title="My Chatbot", page_icon="🤖")
 
-# # if __name__ == "__main__":
-    
-# #     docs = load_all_documents("data")
-# #     store = FaissVectorStore("faiss_store")
-# #     store.build_from_documents(docs)
-# #     store.load()
-# #     print(store.query("What is image captioning?", top_k=3))
+st.title("🤖 Simple Streamlit Chatbot")
 
-# # Example usage
-# if __name__ == "__main__":
-#     rag_search = RAGSearch()
-#     query = "What is image captioning?"
-#     summary = rag_search.search_and_summarize(query, top_k=3)
-#     print("Summary:", summary)
+# Initialize session state for chat history
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
+# Display previous messages
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
 
+# User input
+if prompt := st.chat_input("Type your message here..."):
+
+    # Add user message
+    st.session_state.messages.append({"role": "user", "content": prompt})
+
+    with st.chat_message("user"):
+        st.markdown(prompt)
+
+    # Get response from OpenAI
+    rag_search = load_rag()
+    summary = rag_search.search_and_summarize(prompt, top_k=3)
+    # response=client.invoke([prompt.format(query=prompt)])
+    # reply = response.content
+
+    # Add assistant message
+    st.session_state.messages.append({"role": "assistant", "content": summary})
+
+    with st.chat_message("assistant"):
+        st.markdown(summary)

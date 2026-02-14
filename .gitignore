@@ -208,5 +208,4 @@ __marimo__/
 
 .env
 *.log
-*.pdf
-*.txt   
+*.pdf 
